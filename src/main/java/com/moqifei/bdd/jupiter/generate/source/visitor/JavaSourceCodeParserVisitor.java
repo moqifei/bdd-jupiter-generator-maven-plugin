@@ -18,13 +18,6 @@ import com.moqifei.bdd.jupiter.generate.source.parse.JavaSourceCodeParser;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-
-/**
- * 描述:
- *
- * @author xiaogangfan
- * @create 2019-09-03 6:58 PM
- */
 public class JavaSourceCodeParserVisitor extends VoidVisitorAdapter<JavaSourceCodeParser> {
     @Override
     public void visit(MethodDeclaration n, JavaSourceCodeParser arg) {

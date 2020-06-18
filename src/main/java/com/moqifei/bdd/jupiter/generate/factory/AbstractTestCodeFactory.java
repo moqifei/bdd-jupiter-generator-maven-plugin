@@ -16,7 +16,6 @@ import com.moqifei.bdd.jupiter.generate.source.enums.GeneratorModeEnum;
 import com.moqifei.bdd.jupiter.generate.source.enums.SkipFlagEnum;
 import com.moqifei.bdd.jupiter.generate.source.model.GeneratorConfig;
 import com.moqifei.bdd.jupiter.generate.source.model.Method;
-import com.moqifei.bdd.jupiter.generate.source.model.ModelEnum;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaSourceCodeParser;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaTestCodeParser;
 import com.moqifei.bdd.jupiter.generate.util.StringUtil;
@@ -267,10 +266,6 @@ public abstract class AbstractTestCodeFactory {
 	}
 
 	protected String initInstance() {
-		return "";
-	}
-
-	protected String verify(ModelEnum ddd_model, Method method) {
 		return "";
 	}
 

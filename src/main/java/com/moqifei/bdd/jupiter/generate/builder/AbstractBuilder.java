@@ -3,12 +3,6 @@ package com.moqifei.bdd.jupiter.generate.builder;
 import com.moqifei.bdd.jupiter.generate.source.model.Method;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaSourceCodeParser;
 
-/**
- * 描述:
- *
- * @author xiaogangfan
- * @create 2019-09-03 8:41 PM
- */
 public abstract class AbstractBuilder {
 
     private JavaSourceCodeParser javaSourceCodeParser;

@@ -6,14 +6,6 @@ import com.moqifei.bdd.jupiter.generate.util.StringUtil;
 
 import lombok.EqualsAndHashCode;
 
-
-/**
- * 描述:
- * 针对已经生成Test文件的解析结果
- *
- * @author xiaogangfan
- * @create 2019-09-03 5:14 PM
- */
 @EqualsAndHashCode(callSuper = false)
 public class JavaTestCodeParser extends JavaCodeParser {
 

@@ -18,13 +18,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-
-/**
- * 描述:
- *
- * @author xiaogangfan
- * @create 2019-09-03 5:14 PM
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
