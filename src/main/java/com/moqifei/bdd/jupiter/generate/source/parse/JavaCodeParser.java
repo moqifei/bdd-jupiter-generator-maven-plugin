@@ -75,9 +75,5 @@ public class JavaCodeParser {
         //    + ":" + method.getReturnType();
         return method.getName();
     }
-    
-    private void testMethod(String s) {
-    	s = "test";
-    }
 
 }

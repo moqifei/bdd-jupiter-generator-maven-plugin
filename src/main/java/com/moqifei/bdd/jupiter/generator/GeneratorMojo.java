@@ -19,7 +19,9 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.google.common.collect.Lists;
 import com.moqifei.bdd.jupiter.generate.factory.AbstractTestCodeFactory;
-import com.moqifei.bdd.jupiter.generate.source.model.Config;
+import com.moqifei.bdd.jupiter.generate.source.enums.GeneratorModeEnum;
+import com.moqifei.bdd.jupiter.generate.source.enums.SkipFlagEnum;
+import com.moqifei.bdd.jupiter.generate.source.model.GeneratorConfig;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaSourceCodeParser;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaTestCodeParser;
 import com.moqifei.bdd.jupiter.generate.source.visitor.JavaSourceCodeParserVisitor;
@@ -31,6 +33,12 @@ public class GeneratorMojo extends AbstractMojo {
 	@Parameter(property = "generate.configurationFile", required = true)
 	private String configurationFile;
 
+	@Parameter(property = "golablGeneratorMode", required = false)
+	private String golablGeneratorMode;
+
+	@Parameter(property = "generatorConfigs", required = false)
+	private GeneratorConfig[] generatorConfigs;
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		getLog().info("bdd-jupiter-generator start generate file path: " + configurationFile);
@@ -41,13 +49,39 @@ public class GeneratorMojo extends AbstractMojo {
 			JavaSourceCodeParser javaSourceCodeParser = parseSourceCodeFile(fileName);
 			JavaTestCodeParser javaTestCodeParser = parseTargeTestFile(fileName);
 
-			Config config = new Config();
+			GeneratorConfig applyGeneratorConfig = parseGeneratorConfig(generatorConfigs, fileName);
 
-			String testFileString = generateTestFileString(javaSourceCodeParser, javaTestCodeParser, config);
+			getLog().info("bdd-jupiter-generator applyGeneratorConfig: " + applyGeneratorConfig);
 
-			writeFile(javaSourceCodeParser, testFileString);
+			String testFileString = generateTestFileString(javaSourceCodeParser, javaTestCodeParser,
+					applyGeneratorConfig);
+			if (testFileString != null)
+				writeFile(javaSourceCodeParser, testFileString);
 		}
 		getLog().info("bdd-jupiter-generator finished generate file path: " + configurationFile);
+	}
+
+	private GeneratorConfig parseGeneratorConfig(GeneratorConfig[] generatorConfigs, String fileName) {
+		String shortName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
+		GeneratorConfig defaultConfig = new GeneratorConfig();
+		defaultConfig.setFullFileName(shortName);
+		if (golablGeneratorMode != null) {
+			defaultConfig.setGeneratorMode(golablGeneratorMode);
+		}else {
+			defaultConfig.setGeneratorMode(GeneratorModeEnum.SPRING.code());
+		}
+		defaultConfig.setSkipFlag(SkipFlagEnum.NONE.code());
+		defaultConfig.setMethodLists(null);
+		for (GeneratorConfig generatorConfig : generatorConfigs) {
+			if (generatorConfig.getFullFileName().equals(shortName)) {
+				if(generatorConfig.getGeneratorMode()!=null) {
+					defaultConfig.setGeneratorMode(generatorConfig.getGeneratorMode());
+				}
+				defaultConfig.setSkipFlag(generatorConfig.getSkipFlag());
+				defaultConfig.setMethodLists(generatorConfig.getMethodLists());
+			}
+		}
+		return defaultConfig;
 	}
 
 	private static void findFileList(File file, List<String> fileNames) {
@@ -114,9 +148,9 @@ public class GeneratorMojo extends AbstractMojo {
 	}
 
 	private static String generateTestFileString(JavaSourceCodeParser javaSourceCodeParser,
-			JavaTestCodeParser javaTestCodeParser, Config config) {
+			JavaTestCodeParser javaTestCodeParser, GeneratorConfig applyGeneratorConfig) {
 		AbstractTestCodeFactory factory = AbstractTestCodeFactory.create(javaSourceCodeParser, javaTestCodeParser,
-				config);
+				applyGeneratorConfig);
 		return factory.createFileString();
 	}
 
@@ -138,7 +172,7 @@ public class GeneratorMojo extends AbstractMojo {
 
 	private static JavaTestCodeParser parseTargeTestFile(String fileName) {
 		String testFile = fileName.replace("/main/", "/test/");
-		int i = testFile.lastIndexOf("/");
+		//int i = testFile.lastIndexOf("/");
 		int i1 = testFile.lastIndexOf(".");
 		String testFileName = testFile.substring(0, i1) + "Test.java";
 		File file = new File(testFileName);

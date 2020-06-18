@@ -7,19 +7,20 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.google.common.collect.Lists;
-import com.moqifei.bdd.jupiter.generate.source.model.Config;
+import com.moqifei.bdd.jupiter.generate.source.enums.GeneratorModeEnum;
+import com.moqifei.bdd.jupiter.generate.source.enums.SkipFlagEnum;
+import com.moqifei.bdd.jupiter.generate.source.model.GeneratorConfig;
 import com.moqifei.bdd.jupiter.generate.source.model.Method;
 import com.moqifei.bdd.jupiter.generate.source.model.ModelEnum;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaSourceCodeParser;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaTestCodeParser;
 import com.moqifei.bdd.jupiter.generate.util.StringUtil;
 import com.moqifei.bdd.jupiter.generate.util.TestCodeUtil;
-
 
 public abstract class AbstractTestCodeFactory {
 	public static final String initInstance = "initInstance";
@@ -35,7 +36,7 @@ public abstract class AbstractTestCodeFactory {
 
 	protected JavaSourceCodeParser javaSourceCodeParser = null;
 	protected JavaTestCodeParser javaTestCodeParser = null;
-	protected Config config = null;
+	protected GeneratorConfig config = null;
 
 	protected String pkg;
 	protected Set<String> importSet = new HashSet<>();
@@ -49,23 +50,16 @@ public abstract class AbstractTestCodeFactory {
 	}
 
 	public static AbstractTestCodeFactory create(JavaSourceCodeParser jsf, JavaTestCodeParser javaTestCodeParser,
-			Config config) {
-		if (needMockCase(jsf)) {
-			return new JmockitCodeFactory(jsf, javaTestCodeParser, config);
-		}
-		return new PoJoCodeFactory(jsf, javaTestCodeParser, config);
-	}
+			GeneratorConfig applyGeneratorConfig) {
 
-	/**
-	 * @param jsf
-	 * @return
-	 */
-	private static boolean needMockCase(JavaSourceCodeParser jsf) {
-		if (jsf.getName().endsWith("Service") || jsf.getName().endsWith("ServiceImpl")
-				|| jsf.getName().endsWith("Application")) {
-			return true;
+		if (GeneratorModeEnum.SPRING.code().equals(applyGeneratorConfig.getGeneratorMode())) {
+			return new SpringCodeFactory(jsf, javaTestCodeParser, applyGeneratorConfig);
+		} else if (GeneratorModeEnum.SPRINGBOOT.code().equals(applyGeneratorConfig.getGeneratorMode())) {
+			return new SpringBootCodeFactory(jsf, javaTestCodeParser, applyGeneratorConfig);
+		} else if (GeneratorModeEnum.POJO.code().equals(applyGeneratorConfig.getGeneratorMode())) {
+			return new PoJoCodeFactory(jsf, javaTestCodeParser, applyGeneratorConfig);
 		}
-		return false;
+		return new SpringCodeFactory(jsf, javaTestCodeParser, applyGeneratorConfig);
 	}
 
 	public AbstractTestCodeFactory(JavaSourceCodeParser javaSourceCodeParser) {
@@ -73,6 +67,10 @@ public abstract class AbstractTestCodeFactory {
 	}
 
 	public String createFileString() {
+		
+		if(SkipFlagEnum.ALL.code().equals(config.getSkipFlag())){
+			return null;
+		}
 		setPkg();
 		setImport();
 		setcommentStr();
@@ -86,17 +84,36 @@ public abstract class AbstractTestCodeFactory {
 
 	private void setClassAnnotations() {
 		this.annotationsSet.add("@Story(name = \"name\", description = \"描述\")");
-		
+
 	}
 
 	protected void setcommentStr() {
-		commentStr = "/** "
-				+  enter  +"* This bdd-jupiter style test cases file was auto-generated, "
-				+  enter  +"* you should completed it by your own intelligence, come on & have fan!"
-				+  enter  + "*/";
+		commentStr = "/** " + enter + "* This bdd-jupiter style test cases file was auto-generated, " + enter
+				+ "* you should completed it by your own intelligence, come on & have fan!" + enter + "*/";
 	}
 
 	protected void setFields() {
+		if(config.getGeneratorMode().equals(GeneratorModeEnum.POJO.code())) {
+			return;
+		}
+		
+		if (CollectionUtils.isEmpty(javaSourceCodeParser.getFieldList())) {
+			return;
+		}
+
+		importSet.add("import org.mockito.InjectMocks;");
+		importSet.add("import org.mockito.Mock;");
+		importSet.add("import org.mockito.Mockito;");
+
+		for (VariableDeclarator var : javaSourceCodeParser.getFieldList()) {
+			if (var.getParentNode().get().getTokenRange().toString().contains("@")) {
+				fieldSet.add(space4 + "@Mock" + enter + space4 + var.getType().asString() + " "
+						+ StringUtil.firstLower(var.getName().asString()) + ";");
+				
+				//System.out.println("var is " +var.get);
+			}
+		}
+
 	}
 
 	protected void setImport() {
@@ -123,21 +140,32 @@ public abstract class AbstractTestCodeFactory {
 		// Handle testfile
 		handleTestFile();
 		// Handle change method
-		if(javaSourceCodeParser.getMethodList()!=null) {
+		if (javaSourceCodeParser.getMethodList() != null) {
 			for (Method method : javaSourceCodeParser.getMethodList()) {
-//				if (needFilter(method)) {
-//					continue;
-//				}
+				if (needFilter(method)) {
+					continue;
+				}
 				handleNewMethod(method);
 			}
 		}
 	}
 
 	protected boolean needFilter(Method method) {
-		String methodSign = javaSourceCodeParser.generateMethodSign(method);
-		if (!config.getMethodNameList().contains(methodSign)) {
+		if (SkipFlagEnum.ALL.code().equals(config.getSkipFlag())) {
 			return true;
 		}
+		if (SkipFlagEnum.NONE.code().equals(config.getSkipFlag())) {
+			return false;
+		}
+		String methodSign = javaSourceCodeParser.generateMethodSign(method);
+		if (config.getMethodLists() != null) {
+			for (String methodName : config.getMethodLists()) {
+				if (methodSign.equals(methodName)) {
+					return true;
+				}
+			}
+		}
+
 		if (javaSourceCodeParser.getMethodDeclarationMap() != null) {
 			MethodDeclaration methodDeclaration = javaSourceCodeParser.getMethodDeclarationMap().get(methodSign);
 			if (methodDeclaration != null) {
@@ -150,9 +178,10 @@ public abstract class AbstractTestCodeFactory {
 	protected void handleNewMethod(Method method) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(writeMethodHeader(method));
-		sb.append(writeMethodMock(method));
-		sb.append(writeMethodInvoke(method));
-		//sb.append(writeMethodAssert(method));
+		sb.append(writeGivenPhase(method));
+		sb.append(writeWhenPhase(method));
+		sb.append(writeThenPhase(method));
+		sb.append(writeRun());
 		sb.append(writeMethodFooter());
 		methodSet.add(sb.toString());
 	}
@@ -165,10 +194,8 @@ public abstract class AbstractTestCodeFactory {
 			}
 			if (CollectionUtils.isNotEmpty(javaTestCodeParser.getMethodList())) {
 				for (Method method : javaTestCodeParser.getMethodList()) {
-					String methodSign = javaTestCodeParser.generateMethodSign(method);
-					if (config.getMethodNameList().contains(methodSign)) {
-						continue;
-					}
+					//String methodSign = javaTestCodeParser.generateMethodSign(method);
+
 					methodSet.add(enter + space4 + generateTestSourceCodeMethodString(method.getMethodDeclaration()));
 				}
 			}
@@ -232,8 +259,10 @@ public abstract class AbstractTestCodeFactory {
 	protected String writeMethodHeader(Method method) {
 		StringBuffer methodHeader = new StringBuffer();
 		methodHeader.append(enter2 + space4 + "@ScenarioTest(value = \"name\")");
-		methodHeader.append(enter + space4 +  "@ScenarioJsonSource(resources = \"/xxx/xxx.json\", instance = Scene.class, key = \"xxx\")");
-		methodHeader.append(enter + space4 +  "public void test" + StringUtil.firstUpper(method.getName()) + "(Scene scene) { ");
+		methodHeader.append(enter + space4
+				+ "@ScenarioJsonSource(resources = \"/xxx/xxx.json\", instance = Scene.class, key = \"xxx\")");
+		methodHeader.append(
+				enter + space4 + "public void test" + StringUtil.firstUpper(method.getName()) + "(Scene scene) { ");
 		return methodHeader.toString();
 	}
 
@@ -245,17 +274,50 @@ public abstract class AbstractTestCodeFactory {
 		return "";
 	}
 
+	protected String writeGivenPhase(Method method) {
+		StringBuilder methodBody = new StringBuilder();
+		methodBody.append(enter + space8 + "scene.given(\"given phase desc\",()->{//put your given code here." + enter
+				+ space8 + "})");
+		methodBody.append(enter + space8 + ".and(\"given and phase desc\",()->{//put your given and code here." + enter
+				+ space8 + "})");
+		return methodBody.toString();
+	}
+	
+	protected String writeWhenPhase(Method method) {
+		StringBuilder methodBody = new StringBuilder();
+		methodBody.append(
+				enter + space8 + ".when(\"when phase desc\",()->{//put your when code here." + enter + space8 + "})");
+		return methodBody.toString();
+	}
+	
+	protected String writeThenPhase(Method method) {
+		StringBuilder methodBody = new StringBuilder();
+		methodBody.append(
+				enter + space8 + ".then(\"then phase desc\",()->{//put your then code here." + enter + space8 + "})");
+		methodBody.append(enter + space8 + ".and(\"then and phase desc\",()->{//put your then and code here." + enter
+				+ space8 + "})");
+		return methodBody.toString();
+	}
+	
+	protected String writeRun() {
+		return enter + space8 + ".run();";
+	}
+	
 	protected String writeMethodInvoke(Method method) {
 
 		StringBuilder methodBody = new StringBuilder();
-		methodBody.append(enter+space8+"scene.given(\"given phase desc\",()->{//put your given code here."+enter+space8+"})");
-		methodBody.append(enter+space8+".and(\"given and phase desc\",()->{//put your given and code here."+enter+space8+"})");
-		methodBody.append(enter+space8+".when(\"when phase desc\",()->{//put your when code here."+enter+space8+"})");
-		methodBody.append(enter+space8+".then(\"then phase desc\",()->{//put your then code here."+enter+space8+"})");
-		methodBody.append(enter+space8+".and(\"then and phase desc\",()->{//put your then and code here."+enter+space8+"})");
-		methodBody.append(enter+space8+".run();");
+		methodBody.append(enter + space8 + "scene.given(\"given phase desc\",()->{//put your given code here." + enter
+				+ space8 + "})");
+		methodBody.append(enter + space8 + ".and(\"given and phase desc\",()->{//put your given and code here." + enter
+				+ space8 + "})");
+		methodBody.append(
+				enter + space8 + ".when(\"when phase desc\",()->{//put your when code here." + enter + space8 + "})");
+		methodBody.append(
+				enter + space8 + ".then(\"then phase desc\",()->{//put your then code here." + enter + space8 + "})");
+		methodBody.append(enter + space8 + ".and(\"then and phase desc\",()->{//put your then and code here." + enter
+				+ space8 + "})");
+		methodBody.append(enter + space8 + ".run();");
 
-		
 		return methodBody.toString();
 	}
 

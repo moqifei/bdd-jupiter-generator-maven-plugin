@@ -4,14 +4,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.stmt.ReturnStmt;
-import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.google.common.collect.Lists;
 import com.moqifei.bdd.jupiter.generate.source.model.Method;
@@ -38,12 +36,12 @@ public class JavaSourceCodeParserVisitor extends VoidVisitorAdapter<JavaSourceCo
         method.setReturnType(n.getType().asString());
         method.setType(n.getType());
         method.setMethodDeclaration(n);
-        NodeList<TypeParameter> typeParameters = n.getTypeParameters();
-        Iterator<TypeParameter> iterator = typeParameters.iterator();
-        while (iterator.hasNext()) {
-            TypeParameter typeParameter = iterator.next();
-            System.out.println();
-        }
+//        NodeList<TypeParameter> typeParameters = n.getTypeParameters();
+//        Iterator<TypeParameter> iterator = typeParameters.iterator();
+//        while (iterator.hasNext()) {
+//            TypeParameter typeParameter = iterator.next();
+//            System.out.println();
+//        }
         if (CollectionUtils.isEmpty(arg.getMethodList())) {
             arg.setMethodList(Lists.newArrayList(method));
         } else {

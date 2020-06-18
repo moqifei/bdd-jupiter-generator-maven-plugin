@@ -11,13 +11,9 @@ import java.util.List;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.google.common.collect.Lists;
 import com.moqifei.bdd.jupiter.generate.factory.AbstractTestCodeFactory;
-import com.moqifei.bdd.jupiter.generate.source.model.Config;
+import com.moqifei.bdd.jupiter.generate.source.model.GeneratorConfig;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaSourceCodeParser;
 import com.moqifei.bdd.jupiter.generate.source.parse.JavaTestCodeParser;
 import com.moqifei.bdd.jupiter.generate.source.visitor.JavaSourceCodeParserVisitor;
@@ -44,9 +40,10 @@ public class Test {
 			JavaSourceCodeParser javaSourceCodeParser = parseSourceCodeFile(fileName);
 			JavaTestCodeParser javaTestCodeParser = parseTargeTestFile(fileName);
 	
-			Config config = new Config();
+			GeneratorConfig generatorConfigs = new GeneratorConfig();
+			//Config config = new Config();
 	
-			String testFileString = generateTestFileString(javaSourceCodeParser, javaTestCodeParser, config);
+			String testFileString = generateTestFileString(javaSourceCodeParser, javaTestCodeParser, generatorConfigs);
 	
 			writeFile(javaSourceCodeParser, testFileString);
 		}
@@ -117,9 +114,9 @@ public class Test {
 	}
 
 	private static String generateTestFileString(JavaSourceCodeParser javaSourceCodeParser,
-			JavaTestCodeParser javaTestCodeParser, Config config) {
+			JavaTestCodeParser javaTestCodeParser,GeneratorConfig generatorConfig) {
 		AbstractTestCodeFactory factory = AbstractTestCodeFactory.create(javaSourceCodeParser, javaTestCodeParser,
-				config);
+				generatorConfig);
 		return factory.createFileString();
 	}
 
@@ -141,7 +138,7 @@ public class Test {
 
 	private static JavaTestCodeParser parseTargeTestFile(String fileName) {
 		String testFile = fileName.replace("/main/", "/test/");
-		int i = testFile.lastIndexOf("/");
+		//int i = testFile.lastIndexOf("/");
 		int i1 = testFile.lastIndexOf(".");
 		String testFileName = testFile.substring(0, i1) + "Test.java";
 		File file = new File(testFileName);
