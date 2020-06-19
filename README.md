@@ -81,4 +81,6 @@
 			</plugin>
 		</plugins>
 	</build>
-  ```
+       ```
+       *通过maven命令执行
+       `bdd-jupiter-generator:generate`
