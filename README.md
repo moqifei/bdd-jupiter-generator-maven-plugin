@@ -20,25 +20,31 @@
 				<version>1.0.0-SNAPSHOT</version>
 				<configuration>
 					<!-- 指定配置文件的位置 -->
-					<configurationFile>${basedir}/src/main/java/com/moqifei/bdd/jupiter/writer</configurationFile>
+					<configurationFile>${basedir}/src/main/java/com/moqifei/bdd/jupiter/writer/test</configurationFile>
 					<golablGeneratorMode>PoJo</golablGeneratorMode>
 					<generatorConfigs>
-						<generatorConfig
+					  <generatorConfig
 							implementation="com.moqifei.bdd.jupiter.generate.source.model.GeneratorConfig">
 							<generatorMode>SpringBoot</generatorMode>
-							<fullFileName>BasicStoryWriter.java</fullFileName>
+							<fullFileName>SkipClass.java</fullFileName>
 							<skipFlag>all</skipFlag>
 						</generatorConfig>
 						<generatorConfig
 							implementation="com.moqifei.bdd.jupiter.generate.source.model.GeneratorConfig">
+							<generatorMode>SpringBoot</generatorMode>
+							<fullFileName>SpringBootClass.java</fullFileName>
+							<skipFlag>none</skipFlag>
+						</generatorConfig>
+						<generatorConfig
+							implementation="com.moqifei.bdd.jupiter.generate.source.model.GeneratorConfig">
 							<generatorMode>Spring</generatorMode>
-							<fullFileName>TextWriter.java</fullFileName>
+							<fullFileName>SpringClass.java</fullFileName>
 							<skipFlag>none</skipFlag>
 						</generatorConfig>
 						<generatorConfig
 							implementation="com.moqifei.bdd.jupiter.generate.source.model.GeneratorConfig">
 							<generatorMode>PoJo</generatorMode>
-							<fullFileName>Test.java</fullFileName>
+							<fullFileName>PoJoClass.java</fullFileName>
 							<skipFlag>partial</skipFlag>
 							<methodLists>
 								<methodList>testReduce</methodList>
@@ -98,3 +104,57 @@
    > all 标识跳过fullFileName元素指定Java源文件，不生成单元测试文件  
    > none 标识fullFileName元素指定Java源文件中的所有方法，均生成单元测试案列，**none为默认配置**  
    > partial 标识跳过fullFileName元素指定Java源文件中的部分方法，以methodLists元素配置为准，其余方法生成单元测试案列  
+## 举例说明  
+   * PoJoClass
+   ```
+   package com.moqifei.bdd.jupiter.writer.test;
+
+@Service
+public class PoJoClass {
+	public int testAdd(int a, int b) {
+		return a+b;
+	}
+	
+	public int testReduce(int a, int b) {
+		return a- b;
+	}
+}
+   ```  
+   * 自动生成的PoJoClassTest  
+   ```
+   package com.moqifei.bdd.jupiter.writer.test;
+
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioJsonSource;
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioTest;
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioSource;
+import com.moqifei.bdd.jupiter.modle.annotations.Story;
+import com.moqifei.bdd.jupiter.extension.Scene;
+
+ 
+/** 
+* This bdd-jupiter style test cases file was auto-generated, 
+* you should completed it by your own intelligence, come on & have fan!
+*/
+@Story(name = "name", description = "描述")
+public class PoJoClassTest {
+
+
+ 
+    @ScenarioTest(value = "name")
+    @ScenarioJsonSource(resources = "/xxx/xxx.json", instance = Scene.class, key = "xxx")
+    public void testTestAdd(Scene scene) { 
+        scene.given("given phase desc",()->{//put your given code here.
+        })
+        .and("given and phase desc",()->{//put your given and code here.
+        })
+        .when("when phase desc",()->{//put your when code here.
+        })
+        .then("then phase desc",()->{//put your then code here.
+        })
+        .and("then and phase desc",()->{//put your then and code here.
+        })
+        .run();
+    }
+}
+   ```  
+   
