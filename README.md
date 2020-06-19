@@ -91,10 +91,10 @@
    * golablGeneratorMode  
    golablGeneratorMode支持三种配置项：  
    > PoJo标识将configurationFile路径下的源文件，当作简单Java对象生成测试用例类，不考虑Spring集成依赖及Mock依赖等;      
-   > Spring标识将configurationFile路径下的源文件，当作Spring bean类生成测试用例，自动添加Spring测试集成所需代码依赖，并“猜”出所需Mock的Fileds,自动生成到单测案例中，并集成相关Mock及断言代码;      
+   > Spring标识将configurationFile路径下的源文件，当作Spring bean类生成测试用例，自动添加Spring测试集成所需代码依赖，并“猜”出所需Mock的Fileds,自动生成到单测案例中，并集成相关Mock及断言代码， **Spring为默认配置**;      
    > SpringBoot除了自动添加SprintBoot测试集成所需代码依赖外，功能与Spring配置项一致;  
    * generatorConfig  
    generatorConfig是针对单个Java源文件生成测试用例的自定义配置，其中fullFileName元素标识需要自定义的Java源文件名称，generatorMode元素配置含义与golablGeneratorMode一致，如果单独配置了generatorMode元素，则golablGeneratorMode配置对该文件的测试用例不生效，skipFlag元素支持三种配置项：  
    > all 标识跳过fullFileName元素指定Java源文件，不生成单元测试文件  
-   > none 标识fullFileName元素指定Java源文件中的所有方法，均生成单元测试案列  
+   > none 标识fullFileName元素指定Java源文件中的所有方法，均生成单元测试案列，**none为默认配置**  
    > partial 标识跳过fullFileName元素指定Java源文件中的部分方法，以methodLists元素配置为准，其余方法生成单元测试案列  
