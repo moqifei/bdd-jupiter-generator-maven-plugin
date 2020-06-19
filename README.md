@@ -1,6 +1,6 @@
 # bdd-jupiter-generator-maven-plugin
 ## bdd-jupiter-generator-maven-plugin的目的
-   通过maven插件的形式，解析Java文件，自动生成bdd-jupiter单测框架模式下的单元测试用例
+   通过maven插件的形式，解析Java文件，自动生成[bdd-jupiter](https://github.com/moqifei/bdd-jupiter)单测框架模式下的单元测试用例
 ## 使用方式
    * 添加pom,插件依赖
    ```
