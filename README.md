@@ -107,8 +107,8 @@
 ## 举例说明  
    * PoJoClass
    ```
-   package com.moqifei.bdd.jupiter.writer.test;
-
+   package com.moqifei.bdd.jupiter.writer.test;  
+   import org.springframework.stereotype.Service;
 @Service
 public class PoJoClass {
 	public int testAdd(int a, int b) {
@@ -128,7 +128,8 @@ import com.moqifei.bdd.jupiter.modle.annotations.ScenarioJsonSource;
 import com.moqifei.bdd.jupiter.modle.annotations.ScenarioTest;
 import com.moqifei.bdd.jupiter.modle.annotations.ScenarioSource;
 import com.moqifei.bdd.jupiter.modle.annotations.Story;
-import com.moqifei.bdd.jupiter.extension.Scene;
+import com.moqifei.bdd.jupiter.extension.Scene;  
+import org.springframework.stereotype.Service;
 
  
 /** 
@@ -157,4 +158,167 @@ public class PoJoClassTest {
     }
 }
    ```  
-   
+   * SpringClass  
+   ```
+   package com.moqifei.bdd.jupiter.writer.test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class SpringClass {
+	@Autowired
+	private PoJoClass poJoClass;
+	
+	public int doAdd() {
+		int a = poJoClass.testAdd(poJoClass.testReduce(3, 1), 2);
+		return a;
+	}
+}  
+   ```  
+   * 自动生成的SpringClassTest  
+   ```
+   package com.moqifei.bdd.jupiter.writer.test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import com.moqifei.bdd.jupiter.extension.Scene;
+import org.mockito.InjectMocks;
+import org.mockito.ArgumentMatchers;
+
+import org.junit.jupiter.api.BeforeEach;
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioJsonSource;
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioTest;
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.moqifei.bdd.jupiter.modle.annotations.Story;
+import org.springframework.stereotype.Service;
+import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.Mock;
+ 
+/** 
+* This bdd-jupiter style test cases file was auto-generated, 
+* you should completed it by your own intelligence, come on & have fan!
+*/
+@Story(name = "name", description = "描述")
+@ContextConfiguration("classpath:spring/spring-config-test.xml")
+@ExtendWith(SpringExtension.class)
+public class SpringClassTest {
+    @Mock
+    PoJoClass poJoClass;
+
+    @BeforeEach
+    public void beforeEach() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+ 
+    @ScenarioTest(value = "name")
+    @ScenarioJsonSource(resources = "/xxx/xxx.json", instance = Scene.class, key = "xxx")
+    public void testDoAdd(Scene scene) { 
+        scene.given("given phase desc",()->{//replace your given code here.
+            scene.put("xxx", ArgumentMatchers.any());
+        })
+        .and("given and phase desc",()->{//put your given and code here.
+        })
+        .when("when phase desc",()->{//replace your when code here.
+             Mockito.when(poJoClass.testAdd(poJoClass.testReduce(ArgumentMatchers.any(),ArgumentMatchers.any()),ArgumentMatchers.any())).thenReturn(ArgumentMatchers.any());
+        })
+        .then("then phase desc",()->{//replace your then code here.
+            Object object = scene.<Object>get("xxx");
+            int a = poJoClass.testAdd(poJoClass.testReduce(ArgumentMatchers.any(),ArgumentMatchers.any()),ArgumentMatchers.any());
+            assertThat(a, is(equalTo(object)));
+        })
+        .and("then and phase desc",()->{//put your then and code here.
+        })
+        .run();
+    }
+}  
+   ```  
+  * SpringBootClass  
+  ```
+  package com.moqifei.bdd.jupiter.writer.test;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class SpringBootClass {
+	@Autowired
+	private PoJoClass poJoClass;
+	
+	public int doReduce() {
+		int a = poJoClass.testReduce(poJoClass.testAdd(3, 1), poJoClass.testReduce(2, 3));
+		return b;
+	}
+}
+   ```
+   * 自动生成的SpringBootClassTest
+   ```
+   package com.moqifei.bdd.jupiter.writer.test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import com.moqifei.bdd.jupiter.extension.Scene;
+import org.mockito.InjectMocks;
+import org.mockito.ArgumentMatchers;
+
+import org.junit.jupiter.api.BeforeEach;
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioJsonSource;
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioTest;
+import com.moqifei.bdd.jupiter.modle.annotations.ScenarioSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.moqifei.bdd.jupiter.modle.annotations.Story;
+import org.springframework.stereotype.Service;
+import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.Mock;
+ 
+/** 
+* This bdd-jupiter style test cases file was auto-generated, 
+* you should completed it by your own intelligence, come on & have fan!
+*/
+@Story(name = "name", description = "描述")
+@SpringBootTest(classes = Object.class)
+@ExtendWith(SpringExtension.class)
+public class SpringBootClassTest {
+    @Mock
+    PoJoClass poJoClass;
+
+    @BeforeEach
+    public void beforeEach() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+ 
+    @ScenarioTest(value = "name")
+    @ScenarioJsonSource(resources = "/xxx/xxx.json", instance = Scene.class, key = "xxx")
+    public void testDoReduce(Scene scene) { 
+        scene.given("given phase desc",()->{//replace your given code here.
+            scene.put("xxx", ArgumentMatchers.any());
+        })
+        .and("given and phase desc",()->{//put your given and code here.
+        })
+        .when("when phase desc",()->{//replace your when code here.
+             Mockito.when(poJoClass.testReduce(poJoClass.testAdd(ArgumentMatchers.any(),ArgumentMatchers.any()),poJoClass.testReduce(ArgumentMatchers.any(),ArgumentMatchers.any()))).thenReturn(ArgumentMatchers.any());
+        })
+        .then("then phase desc",()->{//replace your then code here.
+            Object object = scene.<Object>get("xxx");
+            int a = poJoClass.testReduce(poJoClass.testAdd(ArgumentMatchers.any(),ArgumentMatchers.any()),poJoClass.testReduce(ArgumentMatchers.any(),ArgumentMatchers.any()));
+            assertThat(a, is(equalTo(object)));
+        })
+        .and("then and phase desc",()->{//put your then and code here.
+        })
+        .run();
+    }
+}  
+    ```
