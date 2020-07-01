@@ -45,6 +45,7 @@ public class SpringBootCodeFactory extends AbstractTestCodeFactory{
 		importSet.add(impo + " org.mockito.MockitoAnnotations;");
 		importSet.add(impo + " org.junit.jupiter.api.extension.ExtendWith;");
 		importSet.add(impo + " org.junit.jupiter.api.BeforeEach;");
+		importSet.add(impo + " org.springframework.boot.test.context.SpringBootTest;");
 
 		annotationsSet.add("@ExtendWith(SpringExtension.class)");
 		annotationsSet.add("@SpringBootTest(classes = Object.class)");
