@@ -5,7 +5,7 @@
 
 	<groupId>com.moqifei.bdd.jupiter</groupId>
 	<artifactId>bdd-jupiter-generator-maven-plugin</artifactId>
-	<version>1.0.0-GA</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>bdd-jupiter-generator-maven-plugin Maven Plugin</name>
